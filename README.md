@@ -1,5 +1,7 @@
 # EntryDNS Updater
 
+Forked for Update to Python3
+
 A basic python script to update EntryDNS A Records providing dynamic DNS on a custom domain.
 
 ## Requirements
