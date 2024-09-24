@@ -11,6 +11,7 @@ from urllib.request import urlopen
 import requests
 import os
 from time import strftime
+import sys
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__)) +"/"
 
@@ -89,10 +90,40 @@ def update_host(token):
 		return "OK"
 	else:
 		return "ERROR: Code %s" % response.status_code
+	
+def print_help():
+	print(f"USAGE:\n\t{sys.argv[0]} [FLAGS]")
+	print("FLAGS:")
+	print("\t-h, --help\tDisplays this help message")
+	print("\t-f, --force\tForces script to update EntryDNS entries (ignores cache)")
 
+def parse_args():
+	# check if any arguments were passed
+	for arg in sys.argv[1:]:
+		match arg:
+			case "-h" | "--help":
+				print_help()
+				# terminate script if --help was passed
+				sys.exit()
+			case "-f" | "--force":
+				global force_update # modify global var instead of creating a local one
+				force_update = True
+			case _:
+				print(f"Error: unrecognized command-line option \'{arg}\'")
+				print_help()
+				# terminate script, if unrecognized arg was passed
+				sys.exit()
+
+# set defaults for variables
+force_update = False
+
+# main program execution
+parse_args()
 current_ip = get_ip()
 cached_ip = get_cached_ip()
-if cached_ip != current_ip:
+if cached_ip != current_ip or force_update:
+	if force_update == True:
+		print("forcing update")
 	set_cached_ip(current_ip)
 	hosts = load_hosts()
 	for host in hosts:
